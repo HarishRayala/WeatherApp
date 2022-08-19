@@ -1,0 +1,174 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        #mainDiv{
+            display: flex;
+            justify-content: space-between;
+        }
+        #weather7{
+            display: flex;
+            justify-content: space-around;
+            color: white;
+            background-color: #282828;
+            margin-top: 30px;
+            text-align: center;
+        }
+        #button{
+            background-color: cornflowerblue;
+            border-radius: 3px;
+            height: 28px;
+            color: black;
+        }
+        #button:hover{
+            background-color: yellow;
+        }
+        body{
+            background-image: url("https://www.adventurebikerider.com/wp-content/uploads/2017/10/tumblr_o27c7fByaO1tchrkco1_500.gif");
+            background-repeat: no-repeat;
+            background-size: cover;
+    
+        }
+        #container{
+            color: white;
+        }
+        #city{
+            width: 300px;
+            height: 20px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div id="mainDiv">
+        <div id="info">
+            <input type="text" placeholder="Enter City" id="city"/>
+            <button onclick="getweather()" id="button">Get Weather</button>
+            <div id="container"></div>
+        </div>
+        <div id="map">
+            <div class="mapouter"><div class="gmap_canvas"><iframe width="600" height="500" id="gmap_canvas" frameborder="0" scrolling="no" marginheight="0" marginwidth="0"></iframe><a href="https://123movies-to.org">123movies</a><br><style>.mapouter{position:relative;text-align:right;height:500px;width:600px;}</style><a href="https://www.embedgooglemap.net"></a><style>.gmap_canvas {overflow:hidden;background:none!important;height:500px;width:600px;}</style></div></div>
+        </div>
+    </div>
+    <div id="weather7"></div>
+</body>
+</html>
+<script>
+
+let container=document.getElementById("container");
+async function getweather(){
+    try{
+
+        let city=document.getElementById("city").value;
+
+        let res=await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=32ce108115971eaf5b586defc87531c2&units=metric`);
+
+        let data =await res.json();
+        appenddata(data);
+
+        let lat = data.coord.lat;
+        let lon = data.coord.lon;
+
+        let res7 = await fetch(`https://api.openweathermap.org/data/2.5/onecall?lat=${lat}&lon=${lon}&exclude=minute,hourly&appid=32ce108115971eaf5b586defc87531c2&units=metric`)
+        let data7 = await res7.json();
+        getWeather7days(data7.daily);
+        // appendWeek(week)
+        console.log("data:",data7.daily);
+    }
+    catch (err){
+            console.log("err",err);
+    }   
+}
+
+
+function appenddata(data){
+    container.innerHTML=null;
+    
+    let name=document.createElement('h3');
+    name.innerText=`City: ${data.name}`;
+
+    let temp=document.createElement('h3');
+    temp.innerText=`Temp: ${data.main.temp}℃`;
+
+    let temp_min=document.createElement('h3');
+    temp_min.innerText=`Min Temp: ${data.main.temp_min}℃`;
+
+    let temp_max=document.createElement('h3');
+    temp_max.innerText=`Max Temp: ${data.main.temp_max}℃`;
+
+    let wind=document.createElement('h3');
+    wind.innerText=`Wind Speed: ${data.wind.speed}km/h`;
+
+    let clouds=document.createElement('h3');
+    clouds.innerText=`Cloud: ${data.clouds.all}`;
+
+    let sunrise= document.createElement('h3');
+    sunrise.innerText=`Sunrise: ${data.sys.sunrise}`;
+
+    let sunset= document.createElement('h3');
+    sunset.innerText=`Sunset: ${data.sys.sunset}`
+
+    container.append(name, temp, temp_min,temp_max,wind, clouds, sunrise, sunset)
+
+    let iframe = document.querySelector('iframe');
+    iframe.src = `https://maps.google.com/maps?q=${data.name}&t=&z=13&ie=UTF8&iwloc=&output=embed`;
+
+}
+
+function getWeather7days(data){
+    let container7 = document.getElementById('weather7');
+    container7.innerHTML = null;
+
+    data.map(function(elem,index){
+        if(index == week.length){
+            index = 0;
+        }
+        let div = document.createElement('div');
+
+        let day = document.createElement('h5');
+        day.innerText = week[index];
+
+        let desc = document.createElement('h5');
+        desc.innerText = "Desc: "+elem.weather[0].description;
+
+        let min = document.createElement('h5');
+        min.innerText = "Min: "+elem.temp.min;
+
+        let max = document.createElement('h5');
+        max.innerText = "Max: "+elem.temp.max;
+
+        div.append(day,desc, min, max);
+        container7.append(div);
+
+    })
+}
+
+let week = ['Monday', 'Tuesday', 'Wednesday', 'Thursday','Friday', 'Saturday', 'Sunday'];
+
+// function appendWeek(data){
+//     data.map(function(elem){
+//         let weekCont = document.querySelector("#div7");
+
+//         let day = document.createElement("h5");
+//         day.innerText = elem;
+
+//         weekCont.append(day);
+//     })
+// }
+
+
+
+
+
+
+
+
+
+
+
+</script>
